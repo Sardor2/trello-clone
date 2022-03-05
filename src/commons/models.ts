@@ -7,9 +7,14 @@ interface ICard {
 interface IList {
   id: string;
   title: string;
-  cards: ICard[] | string[];
+  cards: ICard[];
+}
+
+export enum DragItems {
+  CARD = "CARD",
+  LIST = "LIST",
 }
 
 interface IUser {}
 
-export { ICard, IList, IUser };
+export type { ICard, IList, IUser };

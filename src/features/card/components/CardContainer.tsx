@@ -1,6 +1,6 @@
 import { styled } from "@mui/material";
 import React from "react";
-import { Card } from "./Card";
+import Card from "./Card";
 
 const Wrapper = styled("div")`
   display: flex;
@@ -9,12 +9,15 @@ const Wrapper = styled("div")`
   margin-top: 15px;
 `;
 
-export const CardContainer = () => {
+export const CardContainer: React.FC<{ cards: string[]; listId: string }> = ({
+  cards,
+  listId,
+}) => {
   return (
     <Wrapper>
-      <Card />
-      <Card />
-      <Card />
+      {cards.map((card) => (
+        <Card listId={listId} key={card} id={card} />
+      ))}
     </Wrapper>
   );
 };

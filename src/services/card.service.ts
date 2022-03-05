@@ -1,8 +1,12 @@
+import { ICard } from "commons";
 import { api } from "../commons/api";
 
 const cardService = {
-  list: () => api.get("/cards"),
-  getById: (id: string) => api.get(`/cards/${id}`)
+  updateCard: (listId: string) => (updatedCards: any) => {
+    return api.patch(`/lists/${listId}`, {
+      cards: updatedCards,
+    });
+  },
 };
 
 export { cardService };

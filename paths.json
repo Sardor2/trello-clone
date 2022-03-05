@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "baseUrl": "src",
+    "paths": {
+      "@commons/*": ["commons/*"],
+      "@sagas/*": ["sagas/*"]
+    }
+  }
+}

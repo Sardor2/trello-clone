@@ -1,9 +1,11 @@
 import React, { useEffect } from "react";
-import { styled } from "@mui/material";
-import { useAppDispatch, useAppSelector } from "@commons/hooks";
-import { Spinner } from "@commons/components/Spinner";
+import { styled, Box } from "@mui/material";
+import { useAppDispatch, useAppSelector } from "commons/hooks";
+import { Spinner } from "commons/components/Spinner";
 import { List } from "./List";
 import { loadLists } from "../state/list-slice";
+import { selectAllLists } from "../state/list.selectors";
+import { AddListForm } from "./AddListForm";
 
 const Wrapper = styled("div")`
   display: flex;
@@ -12,7 +14,7 @@ const Wrapper = styled("div")`
 `;
 
 export const ListContainer = () => {
-  const lists = useAppSelector((state) => state.lists.data);
+  const lists = useAppSelector(selectAllLists);
   const isLoading = useAppSelector((s) => s.lists.isLoading);
   const dispatch = useAppDispatch();
 
@@ -20,16 +22,15 @@ export const ListContainer = () => {
     dispatch(loadLists());
   }, []);
 
-  console.log(lists);
-
   if (isLoading) {
     return <Spinner loading />;
   }
 
   return (
     <Wrapper>
-      <List title="List" />
-      <List title="List" />
+      {lists.map((item) => (
+        <List {...item} key={item.id} />
+      ))}
     </Wrapper>
   );
 };

@@ -1,6 +1,17 @@
 import { Box, Button, colors, IconButton, Input, styled } from "@mui/material";
 import React, { useState } from "react";
 import { Edit } from "@mui/icons-material";
+import {
+  DragItems,
+  ICard,
+  useAppDispatch,
+  useAppSelector,
+  useForm,
+} from "commons";
+import { selectCardById, updateCard } from "../state/card-slice";
+import { connect } from "react-redux";
+import { RootState } from "app/store";
+import { useDrag } from "react-dnd";
 
 const EditIcon = styled((props: any) => {
   return (
@@ -20,7 +31,7 @@ const EditIcon = styled((props: any) => {
   }
 `;
 
-const Wrapper = styled(Box)`
+const Wrapper = styled(Box)<{ isDragging: boolean }>`
   position: relative;
   padding: 5px;
   word-wrap: break-word;
@@ -28,6 +39,7 @@ const Wrapper = styled(Box)`
   padding-right: 25px;
   background-color: ${colors.grey[100]};
   box-shadow: ${(props) => props.theme.shadows[1]};
+  opacity: ${(props) => (props.isDragging ? 0 : 1)};
   &:hover {
     background-color: ${colors.grey[200]};
     button {
@@ -35,7 +47,7 @@ const Wrapper = styled(Box)`
     }
   }
 
-  p {
+  h3 {
     font-size: 14px;
     word-break: break-all;
   }
@@ -54,21 +66,89 @@ const SaveButton = styled(Button)`
   margin-top: 5px;
 `;
 
-export const Card = () => {
+const initialState = {
+  title: "",
+  description: "",
+};
+
+const Card: React.FC<{ id: string } & { card?: ICard; listId: string }> = ({
+  id,
+  card,
+  listId,
+}) => {
   const [isEditing, setEditing] = useState(false);
+  const [collected, drag, dragPreview] = useDrag(() => ({
+    type: DragItems.CARD,
+    item: {
+      cardId: id,
+      listId,
+    },
+    collect: (monitor) => ({
+      isDragging: monitor.isDragging(),
+    }),
+  }));
+  const { values, handleChange, clear, handleSubmit } = useForm<
+    typeof initialState
+  >({
+    title: card?.title,
+    description: card?.description,
+  });
+
+  const dispatch = useAppDispatch();
+
+  const onSubmit = (data: typeof initialState) => {
+    if (data.description && data.title) {
+      dispatch(
+        updateCard({
+          card: {
+            id,
+            title: data.title,
+            description: data.description,
+          },
+          listId,
+        })
+      );
+      setEditing(false);
+    }
+  };
+
   return (
-    <Wrapper>
+    <Wrapper isDragging={collected.isDragging} ref={drag}>
       {isEditing ? (
-        <form action="">
-          <EditInput autoFocus multiline defaultValue="fafafsdfsafsdfs" />
-          <SaveButton onClick={() => setEditing(false)} variant="contained">
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <EditInput
+            autoFocus
+            value={values.title}
+            name="title"
+            onChange={handleChange("title")}
+          />
+
+          <EditInput
+            autoFocus
+            multiline
+            value={values.description}
+            name="description"
+            onChange={handleChange("description")}
+          />
+          <SaveButton type="submit" variant="contained">
             Save
           </SaveButton>
         </form>
       ) : (
-        <p>Description</p>
+        <>
+          <h3>{card?.title}</h3>
+          <p>{card?.description}</p>
+        </>
       )}
       {isEditing ? null : <EditIcon onClick={() => setEditing(true)} />}
     </Wrapper>
   );
 };
+
+const mapStateToProps = (state: RootState, ownProps: { id: string }) => {
+  return {
+    card: selectCardById(state, ownProps.id),
+  };
+};
+
+export default connect(mapStateToProps)(Card);

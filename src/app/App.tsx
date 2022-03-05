@@ -3,6 +3,8 @@ import React, { useEffect } from "react";
 import { Header } from "../commons/components/Header";
 import "../styles.css";
 import { ListContainer } from "../features";
+import { DndProvider } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
 
 const BoxCanvas = styled(Box)`
   position: absolute;
@@ -27,8 +29,10 @@ export default function App() {
   return (
     <BoxCanvas>
       <Header />
-      <Box marginTop={2}>
-        <ListContainer />
+      <Box marginTop={15}>
+        <DndProvider backend={HTML5Backend}>
+          <ListContainer />
+        </DndProvider>
       </Box>
     </BoxCanvas>
   );
