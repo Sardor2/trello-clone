@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Box, styled } from "@mui/system";
 import { Button, Input } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
@@ -6,6 +6,7 @@ import { useAppDispatch, useForm } from "commons";
 import { addList } from "../state/list-slice";
 
 const Wrapper = styled(Box)`
+  min-width: 300px;
   button {
     text-transform: capitalize;
   }
@@ -13,11 +14,12 @@ const Wrapper = styled(Box)`
   form {
     display: flex;
     flex-direction: column;
+    width: 80%;
 
     .add-button {
       width: max-content;
       margin-top: 10px;
-      margin-left: auto;
+      margin-right: auto;
     }
   }
 `;
@@ -27,10 +29,18 @@ export const AddListForm = () => {
   const { values, handleChange, clear } = useForm<{ title: string }>({
     title: "",
   });
+  const scrollRef = useRef<HTMLElement>();
+
+  useEffect(() => {
+    if (show) {
+      scrollRef.current?.scrollIntoView();
+    }
+  }, [show]);
+
   const dispatch = useAppDispatch();
 
   return (
-    <Wrapper>
+    <Wrapper ref={scrollRef}>
       {show ? (
         <form
           onSubmit={(e) => {
@@ -39,7 +49,7 @@ export const AddListForm = () => {
               setShow(false);
               dispatch(
                 addList({
-                  id: Date.now() + values.title,
+                  id: Date.now().toString(),
                   title: values.title,
                 })
               );
@@ -52,6 +62,7 @@ export const AddListForm = () => {
             value={values.title}
             onChange={handleChange("title")}
             placeholder="New list"
+            autoFocus
           />
           <Button
             type="submit"
@@ -63,11 +74,9 @@ export const AddListForm = () => {
           </Button>
         </form>
       ) : (
-        <Box>
-          <Button onClick={() => setShow(true)} startIcon={<AddIcon />}>
-            New List
-          </Button>
-        </Box>
+        <Button onClick={() => setShow(true)} startIcon={<AddIcon />}>
+          New List
+        </Button>
       )}
     </Wrapper>
   );

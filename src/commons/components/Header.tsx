@@ -21,9 +21,9 @@ const Header = () => {
   return (
     <HeaderContainer>
       <Typography variant="h4">Kanban Board</Typography>
-      <Box className="form-wrapper" minWidth={200} ml="auto">
+      {/* <Box className="form-wrapper" minWidth={200} ml="auto">
         <AddListForm />
-      </Box>
+      </Box> */}
     </HeaderContainer>
   );
 };

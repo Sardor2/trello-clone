@@ -9,8 +9,6 @@ export const selectListData = createSelector(
   (state) => state.data
 );
 
-export const selectCardsOfList = createSelector([], () => (id: string) => {});
-
 export const {
   selectAll: selectAllLists,
   selectById: selectListById,

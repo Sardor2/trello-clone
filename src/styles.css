@@ -16,4 +16,5 @@ body {
     linear-gradient(to right, #ffffff 2px, transparent 2px);
   background-size: 32px 32px;
   background-color: #f6f8f8;
+  overflow-x: hidden;
 }

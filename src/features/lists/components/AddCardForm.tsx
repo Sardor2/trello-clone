@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { addCard } from "../state/list-slice";
 import AddIcon from "@mui/icons-material/Add";
 import ClearIcon from "@mui/icons-material/Clear";
+import { EntityId } from "@reduxjs/toolkit";
 
 const Form = styled("form")`
   display: flex;
@@ -21,7 +22,7 @@ const initialState = {
   description: "",
 };
 
-const AddCardForm: React.FC<{ listId: string }> = ({ listId }) => {
+const AddCardForm: React.FC<{ listId: EntityId }> = ({ listId }) => {
   const [showForm, setShowForm] = useState(false);
 
   const { values, handleChange, clear } =
@@ -33,9 +34,9 @@ const AddCardForm: React.FC<{ listId: string }> = ({ listId }) => {
     if (values.description && values.title) {
       dispatch(
         addCard({
-          id: listId,
+          id: listId.toString(),
           card: {
-            id: Date.now() + values.title,
+            id: Date.now().toString(),
             ...values,
           },
         })
@@ -77,7 +78,7 @@ const AddCardForm: React.FC<{ listId: string }> = ({ listId }) => {
     </Form>
   ) : (
     <Button
-      sx={{ mt: 2 }}
+      sx={{ mt: "auto" }}
       onClick={() => setShowForm(true)}
       startIcon={<AddIcon />}
     >

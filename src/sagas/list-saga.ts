@@ -14,9 +14,11 @@ import {
   addCard,
   addList,
   removeList,
+  moveCard,
 } from "features/lists/state/list-slice";
 import { selectListById } from "features/lists/state/list.selectors";
-import { call, put, select, takeEvery } from "redux-saga/effects";
+import { DraggableLocation } from "react-beautiful-dnd";
+import { all, call, fork, put, select, takeEvery } from "redux-saga/effects";
 import { listService } from "services";
 
 function* loadListsSaga() {
@@ -71,12 +73,43 @@ function* removeListSaga(action: PayloadAction<string>) {
   } catch (error) {}
 }
 
+function* moveCardSaga(
+  action: PayloadAction<{
+    source: DraggableLocation;
+    destination: DraggableLocation;
+  }>
+) {
+  try {
+    const fromList = yield select((state: RootState) =>
+      selectListById(state, action.payload.source.droppableId)
+    );
+    const toList = yield select((state: RootState) =>
+      selectListById(state, action.payload.destination.droppableId)
+    );
+    const cards = yield select(selectCardEntities);
+
+    const result = yield all([
+      fork(
+        // @ts-ignore
+        listService.updateOne,
+        { id: fromList.id, cards: fromList.cards.map((item) => cards[item]) }
+      ),
+      // @ts-ignore
+      fork(listService.updateOne, {
+        id: toList.id,
+        cards: toList.cards.map((item) => cards[item]),
+      }),
+    ]);
+  } catch (error) {}
+}
+
 function* listSaga() {
   yield takeEvery(loadLists.type, loadListsSaga);
   yield takeEvery(updateListEntityTitle.type, updateOneList);
   yield takeEvery(addCard.type, addCardToList);
   yield takeEvery(addList.type, addNewList);
   yield takeEvery(removeList.type, removeListSaga);
+  yield takeEvery(moveCard.type, moveCardSaga);
 }
 
 export { listSaga };

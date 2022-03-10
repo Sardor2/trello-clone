@@ -1,10 +1,10 @@
 import { Box, styled } from "@mui/material";
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { Header } from "../commons/components/Header";
 import "../styles.css";
 import { ListContainer } from "../features";
-import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
+import { AddListForm } from "features/lists/components/AddListForm";
 
 const BoxCanvas = styled(Box)`
   position: absolute;
@@ -19,20 +19,16 @@ const BoxCanvas = styled(Box)`
 `;
 
 export default function App() {
-  // useEffect(() => {
-  //   fetch("http://localhost:3000/users")
-  //     .then((res) => res.json())
-  //     .then((data) => {
-  //       console.log(data);
-  //     });
-  // }, []);
+  const scrollRef = useRef<HTMLElement>();
+  useEffect(() => {
+    scrollRef.current?.scrollTo(scrollRef.current.scrollWidth, 0);
+  }, []);
   return (
-    <BoxCanvas>
+    <BoxCanvas ref={scrollRef}>
       <Header />
-      <Box marginTop={15}>
-        <DndProvider backend={HTML5Backend}>
-          <ListContainer />
-        </DndProvider>
+      <Box display={"flex"} marginTop={15}>
+        <ListContainer />
+        <AddListForm />
       </Box>
     </BoxCanvas>
   );

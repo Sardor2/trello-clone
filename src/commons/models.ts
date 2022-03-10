@@ -10,7 +10,7 @@ interface IList {
   cards: ICard[];
 }
 
-export enum DragItems {
+export enum DropDragItems {
   CARD = "CARD",
   LIST = "LIST",
 }

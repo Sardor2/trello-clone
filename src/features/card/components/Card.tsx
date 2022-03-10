@@ -1,17 +1,19 @@
 import { Box, Button, colors, IconButton, Input, styled } from "@mui/material";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { Edit } from "@mui/icons-material";
-import {
-  DragItems,
-  ICard,
-  useAppDispatch,
-  useAppSelector,
-  useForm,
-} from "commons";
+import { ICard, useAppDispatch, useForm } from "commons";
 import { selectCardById, updateCard } from "../state/card-slice";
 import { connect } from "react-redux";
 import { RootState } from "app/store";
-import { useDrag } from "react-dnd";
+import { moveCard } from "features/lists/state/list-slice";
+import {
+  Draggable,
+  DraggableProps,
+  DraggableProvidedDraggableProps,
+  DraggableProvidedDragHandleProps,
+  DroppableProvided,
+} from "react-beautiful-dnd";
+import { css } from "@emotion/react";
 
 const EditIcon = styled((props: any) => {
   return (
@@ -24,6 +26,7 @@ const EditIcon = styled((props: any) => {
   position: absolute;
   top: 0;
   right: 0;
+  z-index: 2;
   font-size: 12px;
   svg {
     width: 15px;
@@ -31,15 +34,21 @@ const EditIcon = styled((props: any) => {
   }
 `;
 
-const Wrapper = styled(Box)<{ isDragging: boolean }>`
+const draggingStyles = css`
+  rotate: 5deg;
+  background-color: lightcyan;
+`;
+
+const Wrapper = styled(Box)`
   position: relative;
   padding: 5px;
   word-wrap: break-word;
   width: 100%;
   padding-right: 25px;
+  margin-bottom: 10px;
   background-color: ${colors.grey[100]};
   box-shadow: ${(props) => props.theme.shadows[1]};
-  opacity: ${(props) => (props.isDragging ? 0 : 1)};
+
   &:hover {
     background-color: ${colors.grey[200]};
     button {
@@ -71,29 +80,36 @@ const initialState = {
   description: "",
 };
 
-const Card: React.FC<{ id: string } & { card?: ICard; listId: string }> = ({
+type Props = {
+  card?: ICard;
+  listId: string;
+  id: string;
+  index: number;
+  innerRef: React.Ref<HTMLDivElement>;
+  draggableProps: DraggableProvidedDraggableProps | undefined;
+  dragHandleProps: DraggableProvidedDragHandleProps | undefined;
+  isDragging: boolean;
+};
+
+const Card: React.FC<Props> = ({
   id,
   card,
   listId,
+  innerRef,
+  dragHandleProps,
+  draggableProps,
+  isDragging,
 }) => {
   const [isEditing, setEditing] = useState(false);
-  const [collected, drag, dragPreview] = useDrag(() => ({
-    type: DragItems.CARD,
-    item: {
-      cardId: id,
-      listId,
-    },
-    collect: (monitor) => ({
-      isDragging: monitor.isDragging(),
-    }),
-  }));
+  // const ref = useRef<HTMLDivElement>();
+
+  // Form
   const { values, handleChange, clear, handleSubmit } = useForm<
     typeof initialState
   >({
     title: card?.title,
     description: card?.description,
   });
-
   const dispatch = useAppDispatch();
 
   const onSubmit = (data: typeof initialState) => {
@@ -113,7 +129,17 @@ const Card: React.FC<{ id: string } & { card?: ICard; listId: string }> = ({
   };
 
   return (
-    <Wrapper isDragging={collected.isDragging} ref={drag}>
+    <Wrapper
+      {...dragHandleProps}
+      {...draggableProps}
+      style={{
+        ...draggableProps?.style,
+        transform: `${draggableProps?.style?.transform ?? ""} ${
+          isDragging ? "rotate(5deg)" : ""
+        }`,
+      }}
+      ref={innerRef}
+    >
       {isEditing ? (
         <form onSubmit={handleSubmit(onSubmit)}>
           <EditInput

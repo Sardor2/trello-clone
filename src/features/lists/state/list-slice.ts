@@ -1,9 +1,12 @@
+import { Source } from "@mui/icons-material";
 import {
   createSlice,
   PayloadAction,
   createEntityAdapter,
   Dictionary,
+  EntityId,
 } from "@reduxjs/toolkit";
+import { DraggableLocation } from "react-beautiful-dnd";
 import { ICard, IList } from "../../../commons";
 
 const listsAdapter = createEntityAdapter<
@@ -42,7 +45,7 @@ const listSlice = createSlice({
     },
     updateListEntityTitle: (
       state,
-      action: PayloadAction<{ id: string; title: string }>
+      action: PayloadAction<{ id: EntityId; title: string }>
     ) => {
       const { id, title } = action.payload;
       const oldEntity = state.data.entities[id];
@@ -67,26 +70,53 @@ const listSlice = createSlice({
         title: action.payload.title,
       });
     },
-    removeList: (state, action: PayloadAction<string>) => {
+    removeList: (state, action: PayloadAction<EntityId>) => {
       listsAdapter.removeOne(state.data, action.payload);
     },
     // @ts-ignore
     moveCard: (
       state,
       action: PayloadAction<{
-        fromListId: string;
-        cardId: string;
-        toListId: string;
+        source: DraggableLocation;
+        destination: DraggableLocation;
       }>
     ) => {
-      const { fromListId, cardId, toListId } = action.payload;
+      const { source, destination } = action.payload;
 
-      const fromList = state.data.entities[fromListId];
-      const toList = state.data.entities[toListId];
+      if (source.droppableId !== destination.droppableId) {
+        const fromList = state.data.entities[source.droppableId];
+        const toList = state.data.entities[destination.droppableId];
 
-      // @ts-ignore
-      fromList.cards = fromList?.cards.filter((c) => c != cardId);
-      toList?.cards.push(cardId);
+        if (!fromList?.cards || !toList?.cards) return;
+
+        const sourceCards = [...fromList.cards];
+        const destCards = [...toList.cards];
+
+        const [removedCard] = sourceCards.splice(source.index, 1);
+        destCards.splice(destination.index, 0, removedCard);
+
+        fromList.cards = sourceCards;
+        toList.cards = destCards;
+      } else {
+        const list = state.data.entities[source.droppableId];
+        if (!list?.cards) return;
+        const copiedItems = [...list.cards];
+        const [removedCard] = copiedItems.splice(source.index, 1);
+        copiedItems.splice(destination.index, 0, removedCard);
+        list.cards = copiedItems;
+      }
+    },
+    moveList(
+      state,
+      action: PayloadAction<{
+        source: DraggableLocation;
+        destination: DraggableLocation;
+      }>
+    ) {
+      const { source, destination } = action.payload;
+      const listIds = state.data.ids;
+      const [removedList] = listIds.splice(source.index, 1);
+      listIds.splice(destination.index, 0, removedList);
     },
   },
 });
@@ -101,6 +131,7 @@ export const {
   addList,
   removeList,
   moveCard,
+  moveList,
 } = listSlice.actions;
 
 export { listsAdapter };

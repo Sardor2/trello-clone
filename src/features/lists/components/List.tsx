@@ -1,30 +1,30 @@
 import { Delete } from "@mui/icons-material";
-import { Box, IconButton, Input, styled } from "@mui/material";
-import { theme } from "app/theme";
-import { DragItems, useAppDispatch } from "commons";
+import { Box, colors, IconButton, Input, styled } from "@mui/material";
+import { EntityId } from "@reduxjs/toolkit";
+import { useAppDispatch, useAppSelector } from "commons";
 import React, { useRef, useState } from "react";
-import { useDrop } from "react-dnd";
-import { CardContainer } from "../../card";
 import {
-  moveCard,
-  removeList,
-  updateListEntityTitle,
-} from "../state/list-slice";
+  DraggableProvidedDraggableProps,
+  DraggableProvidedDragHandleProps,
+} from "react-beautiful-dnd";
+import { CardContainer } from "../../card";
+import { removeList, updateListEntityTitle } from "../state/list-slice";
+import { selectListById } from "../state/list.selectors";
 import { AddCardForm } from "./AddCardForm";
 
-const ListWrapper = styled(Box)<{ isOver: boolean }>`
+const ListWrapper = styled(Box)<{ isDragging: boolean }>`
   padding: 10px;
   min-width: 250px;
   max-width: 300px;
+  height: max-content;
+  margin-right: 10px;
   display: flex;
   flex-direction: column;
-  background-color: white;
-  position: relative;
-  cursor: pointer;
-  box-shadow: ${({ theme }) => theme.shadows[2]};
-  transition: all 0.2s ease;
   background-color: ${(props) =>
-    props.isOver ? props.theme.palette.grey[500] : "white"};
+    props.isDragging ? colors.grey[200] : "white"};
+  position: relative;
+  box-shadow: ${({ theme }) => theme.shadows[2]};
+
   &:hover {
     box-shadow: ${({ theme }) => theme.shadows[3]};
 
@@ -83,39 +83,45 @@ const ListTitle = styled("h2")`
   display: none;
 `;
 
-interface Props {
-  title: string;
-  id: string;
-  cards: string[];
-}
+type Props = {
+  id: EntityId;
+  innerRef: React.Ref<HTMLDivElement>;
+  isDragging: boolean;
+  draggableProps: DraggableProvidedDraggableProps | undefined;
+  dragHandleProps: DraggableProvidedDragHandleProps | undefined;
+};
 
-export const List: React.FC<Props> = React.memo(({ title, cards, id }) => {
+export const List: React.FC<Props> = ({
+  id,
+  innerRef,
+  isDragging,
+  dragHandleProps,
+  draggableProps,
+}) => {
   const ref = useRef<HTMLInputElement>();
-  const [formTitle, setFormTitle] = useState(title);
+  const list = useAppSelector((s) => selectListById(s, id));
+
+  const [formTitle, setFormTitle] = useState(list?.title);
+
   const dispatch = useAppDispatch();
-  const [{ isOver }, drop] = useDrop(() => ({
-    accept: DragItems.CARD,
-    drop: (item: { cardId: string; listId: string }, monitor) => {
-      dispatch(
-        moveCard({
-          fromListId: item.listId,
-          toListId: id,
-          cardId: item.cardId,
-        })
-      );
-    },
-    collect: (monitor) => ({
-      isOver: monitor.isOver(),
-    }),
-  }));
 
   return (
-    <ListWrapper isOver={isOver} ref={drop}>
-      <ListTitle>{title}</ListTitle>
+    <ListWrapper
+      {...dragHandleProps}
+      {...draggableProps}
+      style={{
+        ...draggableProps?.style,
+        transform: `${draggableProps?.style?.transform ?? ""} ${
+          isDragging ? "rotate(5deg)" : ""
+        }`,
+      }}
+      isDragging={isDragging}
+      ref={innerRef}
+    >
+      <ListTitle>{list?.title}</ListTitle>
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          console.log(ref.current?.title);
           if (formTitle) {
             dispatch(updateListEntityTitle({ title: formTitle, id }));
           }
@@ -129,7 +135,7 @@ export const List: React.FC<Props> = React.memo(({ title, cards, id }) => {
           value={formTitle}
         />
       </form>
-      <CardContainer listId={id} cards={cards} />
+      <CardContainer listId={id} cards={list?.cards ?? []} />
       <AddCardForm listId={id} />
       <IconButton
         onClick={() => dispatch(removeList(id))}
@@ -139,4 +145,4 @@ export const List: React.FC<Props> = React.memo(({ title, cards, id }) => {
       </IconButton>
     </ListWrapper>
   );
-});
+};
