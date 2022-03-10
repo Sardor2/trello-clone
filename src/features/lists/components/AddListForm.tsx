@@ -32,9 +32,7 @@ export const AddListForm = () => {
   const scrollRef = useRef<HTMLElement>();
 
   useEffect(() => {
-    if (show) {
-      scrollRef.current?.scrollIntoView();
-    }
+    scrollRef.current?.scrollIntoView();
   }, [show]);
 
   const dispatch = useAppDispatch();
