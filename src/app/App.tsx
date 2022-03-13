@@ -1,9 +1,19 @@
 import { Box, styled } from "@mui/material";
-import React from "react";
+import React, { useEffect } from "react";
 import { Header } from "../commons/components/Header";
 import "../styles.css";
 import { ListContainer } from "../features";
 import { AddListForm } from "features/lists/components/AddListForm";
+import {
+  collection,
+  getDoc,
+  onSnapshot,
+  orderBy,
+  query,
+  getDocs,
+  doc,
+} from "firebase/firestore";
+import { db } from "firebase";
 
 const BoxCanvas = styled(Box)`
   position: absolute;
@@ -18,6 +28,23 @@ const BoxCanvas = styled(Box)`
 `;
 
 export default function App() {
+  useEffect(() => {
+    (async () => {
+      const listRef = collection(db, "lists");
+
+      // const cards = await getDocs(cardsRef).then((res) =>
+      //   res.docs.map((d) => d.data())
+      // );
+
+      // console.log(cards);
+
+      const list1 = await getDocs(listRef).then((res) =>
+        res.docs.map((d) => d.data())
+      );
+
+      console.log(list1);
+    })();
+  }, []);
   return (
     <BoxCanvas>
       <Header />

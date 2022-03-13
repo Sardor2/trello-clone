@@ -16,7 +16,19 @@ const listService = {
     return api.patch(`/lists/${newUpdatedList.id}`, newUpdatedList);
   },
   add: (newList: IList) => api.post<IList>("/lists", newList),
-  removeOne: (id: string) => api.delete(`lists/${id}`),
+  removeOne: (id: string) => api.delete(`/lists/${id}`),
+  updateLists: async (body: IList[]) => {
+    let promises = body.map((list) => {
+      api.delete(`/lists/${list.id}`);
+    });
+    await Promise.all(promises);
+
+    await Promise.all(
+      body.map((list) => {
+        api.post(`/lists/`, list);
+      })
+    );
+  },
 };
 
 export { listService };

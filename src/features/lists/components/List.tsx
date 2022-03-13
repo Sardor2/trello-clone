@@ -122,14 +122,19 @@ export const List: React.FC<Props> = ({
       <form
         onSubmit={(e) => {
           e.preventDefault();
-          if (formTitle) {
-            dispatch(updateListEntityTitle({ title: formTitle, id }));
-          }
+          // if (formTitle) {
+          //   dispatch(updateListEntityTitle({ title: formTitle, id }));
+          // }
           ref.current?.blur();
         }}
       >
         <EditInput
-          onChange={(e) => setFormTitle(e.target.value)}
+          onChange={(e) => {
+            setFormTitle(e.target.value);
+            if (e.target.value) {
+              dispatch(updateListEntityTitle({ title: e.target.value, id }));
+            }
+          }}
           name="title"
           inputRef={ref}
           value={formTitle}
