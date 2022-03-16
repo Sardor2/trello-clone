@@ -30,10 +30,12 @@ export const ListContainer = () => {
   useEffect(() => {
     dispatch(loadLists());
     const q = query(collection(db, "lists"), orderBy('order'));
+
     const unsubs = onSnapshot(q, coll => {
       const lists = coll.docs.map(item => item.data())
+      const normalizedState = normalize(lists, [listEntity])
       dispatch(
-        updateLists(normalize(lists,[listEntity]).entities)
+        updateLists(normalizedState.entities)
       )
     })
 
@@ -60,7 +62,6 @@ export const ListContainer = () => {
         })
       );
     } else {
-      console.log(source,destination)
       if (source.droppableId === destination.droppableId && source.index === destination.index) return
       dispatch(
         moveCard({

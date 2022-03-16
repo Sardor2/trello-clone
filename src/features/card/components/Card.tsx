@@ -90,7 +90,7 @@ type Props = {
   isDragging: boolean;
 };
 
-const Card: React.FC<Props> = ({
+const Card: React.FC<Props> =  ({
   id,
   card,
   listId,
@@ -109,6 +109,7 @@ const Card: React.FC<Props> = ({
     title: card?.title,
     description: card?.description,
   });
+
   const dispatch = useAppDispatch();
 
   const onSubmit = (data: typeof initialState) => {
@@ -168,7 +169,7 @@ const Card: React.FC<Props> = ({
       {isEditing ? null : <EditIcon onClick={() => setEditing(true)} />}
     </Wrapper>
   );
-};
+}
 
 const mapStateToProps = (state: RootState, ownProps: { id: string }) => {
   return {

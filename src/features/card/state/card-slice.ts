@@ -40,7 +40,7 @@ const cardSlice = createSlice({
     },
     [updateLists.type]: (state,action:PayloadAction<any>) => {
       if (action.payload.cards) {
-        cardsAdapter.addMany(state, action.payload.cards);
+        cardsAdapter.setMany(state, action.payload.cards);
       }
     }
   },

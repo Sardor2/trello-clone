@@ -100,10 +100,11 @@ export const List: React.FC<Props> = ({
 }) => {
   const ref = useRef<HTMLInputElement>();
   const list = useAppSelector((s) => selectListById(s, id));
-
   const [formTitle, setFormTitle] = useState(list?.title);
 
   const dispatch = useAppDispatch();
+
+  
 
   useEffect(() => {
     setFormTitle(list?.title)
@@ -154,4 +155,4 @@ export const List: React.FC<Props> = ({
       </IconButton>
     </ListWrapper>
   );
-};
+}

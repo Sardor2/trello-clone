@@ -35,7 +35,7 @@ const listSlice = createSlice({
     },
     updateLists: (state, action: PayloadAction<any>) => {
       if (action.payload.lists) {
-        listsAdapter.setMany(state.data, action.payload.lists)
+        listsAdapter.upsertMany(state.data, action.payload.lists)
       }
     },
     listsLoaded: (state, action: PayloadAction<any>) => {
