@@ -1,9 +1,10 @@
 import { ICard } from "commons";
-import { api } from "../commons/api";
+import { db } from "firebase-config";
+import { doc, updateDoc } from "firebase/firestore";
 
 const cardService = {
-  updateCard: (listId: string) => (updatedCards: any) => {
-    return api.patch(`/lists/${listId}`, {
+  updateCard: (listId: string) => async (updatedCards: ICard[]) => {
+    await updateDoc(doc(db, "lists", listId), {
       cards: updatedCards,
     });
   },

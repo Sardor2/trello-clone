@@ -2,7 +2,7 @@ import { Delete } from "@mui/icons-material";
 import { Box, colors, IconButton, Input, styled } from "@mui/material";
 import { EntityId } from "@reduxjs/toolkit";
 import { useAppDispatch, useAppSelector } from "commons";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   DraggableProvidedDraggableProps,
   DraggableProvidedDragHandleProps,
@@ -105,6 +105,10 @@ export const List: React.FC<Props> = ({
 
   const dispatch = useAppDispatch();
 
+  useEffect(() => {
+    setFormTitle(list?.title)
+  }, [list?.title])
+
   return (
     <ListWrapper
       {...dragHandleProps}
@@ -130,7 +134,7 @@ export const List: React.FC<Props> = ({
       >
         <EditInput
           onChange={(e) => {
-            setFormTitle(e.target.value);
+            setFormTitle(e.target.value)
             if (e.target.value) {
               dispatch(updateListEntityTitle({ title: e.target.value, id }));
             }

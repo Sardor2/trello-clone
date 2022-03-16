@@ -9,6 +9,7 @@ import {
   addCard,
   listsLoaded,
   loadLists,
+  updateLists,
 } from "features/lists/state/list-slice";
 
 const cardsAdapter = createEntityAdapter<ICard>();
@@ -37,6 +38,11 @@ const cardSlice = createSlice({
     [addCard.type]: (state, action: PayloadAction<{ card: ICard }>) => {
       cardsAdapter.addOne(state, action.payload.card);
     },
+    [updateLists.type]: (state,action:PayloadAction<any>) => {
+      if (action.payload.cards) {
+        cardsAdapter.addMany(state, action.payload.cards);
+      }
+    }
   },
 });
 

@@ -5,7 +5,6 @@ import { ICard, useAppDispatch, useForm } from "commons";
 import { selectCardById, updateCard } from "../state/card-slice";
 import { connect } from "react-redux";
 import { RootState } from "app/store";
-import { moveCard } from "features/lists/state/list-slice";
 import {
   Draggable,
   DraggableProps,

@@ -8,6 +8,7 @@ interface IList {
   id: string;
   title: string;
   cards: ICard[];
+  order: number;
 }
 
 export enum DropDragItems {

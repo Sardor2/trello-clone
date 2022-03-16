@@ -3,8 +3,8 @@ import { styled, Box } from "@mui/material";
 import { useAppDispatch, useAppSelector } from "commons/hooks";
 import { Spinner } from "commons/components/Spinner";
 import { List } from "./List";
-import { loadLists, moveCard, moveList } from "../state/list-slice";
-import { selectAllLists, selectListIds } from "../state/list.selectors";
+import { loadLists, moveCard, moveList, updateLists } from "../state/list-slice";
+import { selectListIds } from "../state/list.selectors";
 
 import {
   DragDropContext,
@@ -12,8 +12,10 @@ import {
   Droppable,
   DropResult,
 } from "react-beautiful-dnd";
-import { DropDragItems } from "commons";
-import { AddListForm } from "./AddListForm";
+import { DropDragItems, listEntity } from "commons";
+import { collection, doc, onSnapshot, orderBy, query } from "firebase/firestore";
+import { db } from "firebase-config";
+import { normalize } from "normalizr";
 
 const Wrapper = styled("div")`
   padding-left: 8px;
@@ -27,6 +29,17 @@ export const ListContainer = () => {
 
   useEffect(() => {
     dispatch(loadLists());
+    const q = query(collection(db, "lists"), orderBy('order'));
+    const unsubs = onSnapshot(q, coll => {
+      const lists = coll.docs.map(item => item.data())
+      dispatch(
+        updateLists(normalize(lists,[listEntity]).entities)
+      )
+    })
+
+    return () => {
+      unsubs()
+    }
   }, []);
 
   if (isLoading) {
@@ -36,7 +49,10 @@ export const ListContainer = () => {
   const handleDragEnd = (result: DropResult) => {
     if (!result.destination) return;
     const { source, destination, type } = result;
+
+
     if (type === DropDragItems.LIST) {
+      if (source.index === destination.index) return;    
       dispatch(
         moveList({
           destination,
@@ -44,6 +60,8 @@ export const ListContainer = () => {
         })
       );
     } else {
+      console.log(source,destination)
+      if (source.droppableId === destination.droppableId && source.index === destination.index) return
       dispatch(
         moveCard({
           destination,

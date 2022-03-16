@@ -5,13 +5,16 @@ import {
   createEntityAdapter,
   Dictionary,
   EntityId,
+  EntityAdapter,
 } from "@reduxjs/toolkit";
 import { DraggableLocation } from "react-beautiful-dnd";
 import { ICard, IList } from "../../../commons";
 
 const listsAdapter = createEntityAdapter<
-  Pick<IList, "id" | "title"> & { cards: string[] }
->();
+  Pick<IList, "id" | "title" | "order"> & { cards: string[] }
+>({
+  sortComparer: (a,b) => a.order - b.order
+});
 
 const initialState: {
   data: ReturnType<typeof listsAdapter.getInitialState>;
@@ -30,8 +33,10 @@ const listSlice = createSlice({
     loadLists: (state) => {
       state.isLoading = true;
     },
-    setLists: (state, action: PayloadAction<any>) => {
-      state.data.entities = action.payload.entities.lists;
+    updateLists: (state, action: PayloadAction<any>) => {
+      if (action.payload.lists) {
+        listsAdapter.setMany(state.data, action.payload.lists)
+      }
     },
     listsLoaded: (state, action: PayloadAction<any>) => {
       state.isLoading = false;
@@ -63,15 +68,29 @@ const listSlice = createSlice({
       const prevList = state.data.entities[action.payload.id];
       prevList?.cards.push(card.id);
     },
-    addList: (state, action: PayloadAction<{ title: string; id: string }>) => {
+    addList: (
+      state,
+      action: PayloadAction<{ title: string; id: string; order: number }>
+    ) => {
       listsAdapter.addOne(state.data, {
         cards: [],
         id: action.payload.id,
         title: action.payload.title,
+        order: action.payload.order,
       });
     },
     removeList: (state, action: PayloadAction<EntityId>) => {
+      const index = state.data.ids.indexOf(action.payload)
+      const lists = state.data.ids.map(id => state.data.entities[id])
+
+      lists.slice(index + 1, lists.length).forEach(item => {
+        if (item?.order) {
+          item.order -= 1
+        }
+      })
+
       listsAdapter.removeOne(state.data, action.payload);
+      
     },
     // @ts-ignore
     moveCard: (
@@ -115,6 +134,22 @@ const listSlice = createSlice({
     ) {
       const { source, destination } = action.payload;
       const listIds = state.data.ids;
+      const entities = state.data.entities;
+
+      const sourceId = listIds[source.index];
+      const destId = listIds[destination.index];
+
+      const sourceList = entities[sourceId];
+      const destList = entities[destId];
+
+      if (sourceList && destList) {
+        let temp = sourceList.order;
+        sourceList.order = destList.order;
+        destList.order = temp;
+      }
+
+      // let fromOrder = state.data.entities[source.index]?.order;
+
       const [removedList] = listIds.splice(source.index, 1);
       listIds.splice(destination.index, 0, removedList);
     },
@@ -123,7 +158,7 @@ const listSlice = createSlice({
 
 export const {
   loadLists,
-  setLists,
+  updateLists,
   listsLoaded,
   fetchListsFailed,
   updateListEntityTitle,

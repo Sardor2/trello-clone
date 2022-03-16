@@ -2,8 +2,9 @@ import React, { useEffect, useRef, useState } from "react";
 import { Box, styled } from "@mui/system";
 import { Button, Input } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-import { useAppDispatch, useForm } from "commons";
+import { useAppDispatch, useAppSelector, useForm } from "commons";
 import { addList } from "../state/list-slice";
+import { selectListTotalNumber } from "../state/list.selectors";
 
 const Wrapper = styled(Box)`
   min-width: 300px;
@@ -30,6 +31,7 @@ export const AddListForm = () => {
     title: "",
   });
   const scrollRef = useRef<HTMLElement>();
+  const total = useAppSelector(selectListTotalNumber);
 
   useEffect(() => {
     scrollRef.current?.scrollIntoView();
@@ -49,6 +51,7 @@ export const AddListForm = () => {
                 addList({
                   id: Date.now().toString(),
                   title: values.title,
+                  order: total,
                 })
               );
               clear();

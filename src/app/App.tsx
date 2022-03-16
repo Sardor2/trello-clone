@@ -1,19 +1,10 @@
 import { Box, styled } from "@mui/material";
-import React, { useEffect } from "react";
+import React from "react";
 import { Header } from "../commons/components/Header";
 import "../styles.css";
 import { ListContainer } from "../features";
 import { AddListForm } from "features/lists/components/AddListForm";
-import {
-  collection,
-  getDoc,
-  onSnapshot,
-  orderBy,
-  query,
-  getDocs,
-  doc,
-} from "firebase/firestore";
-import { db } from "firebase";
+import { useAppSelector } from "commons";
 
 const BoxCanvas = styled(Box)`
   position: absolute;
@@ -28,29 +19,13 @@ const BoxCanvas = styled(Box)`
 `;
 
 export default function App() {
-  useEffect(() => {
-    (async () => {
-      const listRef = collection(db, "lists");
-
-      // const cards = await getDocs(cardsRef).then((res) =>
-      //   res.docs.map((d) => d.data())
-      // );
-
-      // console.log(cards);
-
-      const list1 = await getDocs(listRef).then((res) =>
-        res.docs.map((d) => d.data())
-      );
-
-      console.log(list1);
-    })();
-  }, []);
+  const isLoading = useAppSelector((state) => state.lists.isLoading);
   return (
     <BoxCanvas>
       <Header />
       <Box display={"flex"} marginTop={15}>
         <ListContainer />
-        <AddListForm />
+        {!isLoading && <AddListForm />}
       </Box>
     </BoxCanvas>
   );
