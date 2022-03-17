@@ -1,7 +1,8 @@
 import { styled } from "@mui/material";
-import { EntityId } from "@reduxjs/toolkit";
+import { createSelector, EntityId } from "@reduxjs/toolkit";
 import { theme } from "app/theme";
-import { DropDragItems, useAppDispatch } from "commons";
+import { DropDragItems, useAppDispatch, useAppSelector } from "commons";
+import { selectListById } from "features/lists/state/list.selectors";
 import React from "react";
 import { Draggable, Droppable, DroppableProvided } from "react-beautiful-dnd";
 import Card from "./Card";
@@ -24,10 +25,15 @@ const getListStyle = (isDraggingOver) => ({
   margin: "10px 0",
 });
 
-export const CardContainer: React.FC<{ cards: string[]; listId: EntityId }> = ({
-  cards,
+const selectCardOfList = createSelector(
+  [selectListById],
+  (list) => list?.cards 
+)
+
+export const CardContainer: React.FC<{listId: EntityId }> = ({
   listId,
 }) => {
+  const cards = useAppSelector(s => selectCardOfList(s,listId))
   return (
     <Droppable droppableId={listId.toString()} type={DropDragItems.CARD}>
       {(provided, snapshot) => (
@@ -35,7 +41,7 @@ export const CardContainer: React.FC<{ cards: string[]; listId: EntityId }> = ({
           ref={provided.innerRef}
           style={getListStyle(snapshot.isDraggingOver)}
         >
-          {cards.map((card, index) => (
+          {cards?.map((card, index) => (
             <Draggable key={card} index={index} draggableId={card}>
               {(provided, snapshot) => (
                 <Card
@@ -56,3 +62,5 @@ export const CardContainer: React.FC<{ cards: string[]; listId: EntityId }> = ({
     </Droppable>
   );
 };
+
+export default React.memo(CardContainer)

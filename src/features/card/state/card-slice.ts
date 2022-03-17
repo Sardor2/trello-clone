@@ -1,15 +1,17 @@
+import { MailRounded } from "@mui/icons-material";
 import {
   createEntityAdapter,
   createSlice,
   PayloadAction,
 } from "@reduxjs/toolkit";
 import { RootState } from "app/store";
-import { ICard } from "commons";
+import { ICard, IList } from "commons";
 import {
   addCard,
   listsLoaded,
   loadLists,
   updateLists,
+  updateSingleList,
 } from "features/lists/state/list-slice";
 
 const cardsAdapter = createEntityAdapter<ICard>();
@@ -42,6 +44,9 @@ const cardSlice = createSlice({
       if (action.payload.cards) {
         cardsAdapter.setMany(state, action.payload.cards);
       }
+    },
+    [updateSingleList.type]: (state,action: PayloadAction<IList>) => {
+      cardsAdapter.upsertMany(state, action.payload.cards)
     }
   },
 });

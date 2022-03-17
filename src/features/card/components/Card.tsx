@@ -1,16 +1,13 @@
 import { Box, Button, colors, IconButton, Input, styled } from "@mui/material";
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import { Edit } from "@mui/icons-material";
 import { ICard, useAppDispatch, useForm } from "commons";
 import { selectCardById, updateCard } from "../state/card-slice";
 import { connect } from "react-redux";
 import { RootState } from "app/store";
 import {
-  Draggable,
-  DraggableProps,
   DraggableProvidedDraggableProps,
   DraggableProvidedDragHandleProps,
-  DroppableProvided,
 } from "react-beautiful-dnd";
 import { css } from "@emotion/react";
 
@@ -100,18 +97,14 @@ const Card: React.FC<Props> =  ({
   isDragging,
 }) => {
   const [isEditing, setEditing] = useState(false);
-  // const ref = useRef<HTMLDivElement>();
 
-  // Form
-  const { values, handleChange, clear, handleSubmit } = useForm<
+  const { values, handleChange, handleSubmit } = useForm<
     typeof initialState
   >({
     title: card?.title,
     description: card?.description,
   });
-
   const dispatch = useAppDispatch();
-
   const onSubmit = (data: typeof initialState) => {
     if (data.description && data.title) {
       dispatch(
@@ -126,7 +119,7 @@ const Card: React.FC<Props> =  ({
       );
       setEditing(false);
     }
-  };
+  };    
 
   return (
     <Wrapper

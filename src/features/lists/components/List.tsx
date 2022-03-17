@@ -1,16 +1,19 @@
 import { Delete } from "@mui/icons-material";
 import { Box, colors, IconButton, Input, styled } from "@mui/material";
 import { EntityId } from "@reduxjs/toolkit";
-import { useAppDispatch, useAppSelector } from "commons";
+import { useAppDispatch, useAppSelector} from "commons";
 import React, { useEffect, useRef, useState } from "react";
 import {
   DraggableProvidedDraggableProps,
   DraggableProvidedDragHandleProps,
 } from "react-beautiful-dnd";
-import { CardContainer } from "../../card";
-import { removeList, updateListEntityTitle } from "../state/list-slice";
+
+import {removeList, updateListEntityTitle, updateSingleList} from "../state/list-slice";
 import { selectListById } from "../state/list.selectors";
 import { AddCardForm } from "./AddCardForm";
+import {onSnapshot,doc} from "firebase/firestore";
+import {db} from "../../../firebase-config";
+import CardContainer from "features/card/components/CardContainer";
 
 const ListWrapper = styled(Box)<{ isDragging: boolean }>`
   padding: 10px;
@@ -104,7 +107,18 @@ export const List: React.FC<Props> = ({
 
   const dispatch = useAppDispatch();
 
-  
+  useEffect(() => {
+    const usub = onSnapshot(doc(db,'lists',id.toString()), doc => {
+      const list:any = doc.data();
+      // @ts-ignore
+      if (list) {
+        dispatch(updateSingleList(list))
+      }
+    })
+    return () => {
+      usub()
+    };
+  }, []);
 
   useEffect(() => {
     setFormTitle(list?.title)
@@ -145,7 +159,7 @@ export const List: React.FC<Props> = ({
           value={formTitle}
         />
       </form>
-      <CardContainer listId={id} cards={list?.cards ?? []} />
+      <CardContainer listId={id}  />
       <AddCardForm listId={id} />
       <IconButton
         onClick={() => dispatch(removeList(id))}

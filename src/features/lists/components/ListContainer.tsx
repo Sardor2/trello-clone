@@ -34,9 +34,9 @@ export const ListContainer = () => {
     const unsubs = onSnapshot(q, coll => {
       const lists = coll.docs.map(item => item.data())
       const normalizedState = normalize(lists, [listEntity])
-      dispatch(
-        updateLists(normalizedState.entities)
-      )
+      // dispatch(
+      //   updateLists(normalizedState.entities)
+      // )
     })
 
     return () => {
@@ -54,7 +54,7 @@ export const ListContainer = () => {
 
 
     if (type === DropDragItems.LIST) {
-      if (source.index === destination.index) return;    
+      if (source.index === destination.index) return;
       dispatch(
         moveList({
           destination,

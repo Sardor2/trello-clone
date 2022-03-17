@@ -38,6 +38,15 @@ const listSlice = createSlice({
         listsAdapter.upsertMany(state.data, action.payload.lists)
       }
     },
+    updateSingleList: (state,action: PayloadAction<IList>) => {
+      listsAdapter.updateOne(state.data, {
+        id: action.payload.id,
+        changes: {
+          ...action.payload,
+          cards: action.payload.cards.map(c => c.id)
+        }
+      });
+    },
     listsLoaded: (state, action: PayloadAction<any>) => {
       state.isLoading = false;
       if (action.payload.lists) {
@@ -53,15 +62,14 @@ const listSlice = createSlice({
       action: PayloadAction<{ id: EntityId; title: string }>
     ) => {
       const { id, title } = action.payload;
-      const oldEntity = state.data.entities[id];
 
-      const newEntity = {
-        id,
-        title,
-        cards: oldEntity?.cards,
-      };
       // @ts-ignore
-      listsAdapter.setOne(state.data, newEntity);
+      listsAdapter.updateOne(state.data, {
+        id: id,
+        changes: {
+          title,
+        }
+      });
     },
     addCard: (state, action: PayloadAction<{ id: string; card: ICard }>) => {
       const { id, card } = action.payload;
@@ -90,7 +98,7 @@ const listSlice = createSlice({
       })
 
       listsAdapter.removeOne(state.data, action.payload);
-      
+
     },
     // @ts-ignore
     moveCard: (
@@ -167,6 +175,7 @@ export const {
   removeList,
   moveCard,
   moveList,
+    updateSingleList,
 } = listSlice.actions;
 
 export { listsAdapter };
