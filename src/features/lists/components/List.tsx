@@ -1,18 +1,22 @@
 import { Delete } from "@mui/icons-material";
 import { Box, colors, IconButton, Input, styled } from "@mui/material";
 import { EntityId } from "@reduxjs/toolkit";
-import { useAppDispatch, useAppSelector} from "commons";
+import { useAppDispatch, useAppSelector } from "commons";
 import React, { useEffect, useRef, useState } from "react";
 import {
   DraggableProvidedDraggableProps,
   DraggableProvidedDragHandleProps,
 } from "react-beautiful-dnd";
 
-import {removeList, updateListEntityTitle, updateSingleList} from "../state/list-slice";
+import {
+  removeList,
+  updateListEntityTitle,
+  updateSingleList,
+} from "../state/list-slice";
 import { selectListById } from "../state/list.selectors";
 import { AddCardForm } from "./AddCardForm";
-import {onSnapshot,doc} from "firebase/firestore";
-import {db} from "../../../firebase-config";
+import { onSnapshot, doc } from "firebase/firestore";
+import { db } from "../../../firebase-config";
 import CardContainer from "features/card/components/CardContainer";
 
 const ListWrapper = styled(Box)<{ isDragging: boolean }>`
@@ -27,10 +31,8 @@ const ListWrapper = styled(Box)<{ isDragging: boolean }>`
     props.isDragging ? colors.grey[200] : "white"};
   position: relative;
   box-shadow: ${({ theme }) => theme.shadows[2]};
-
   &:hover {
     box-shadow: ${({ theme }) => theme.shadows[3]};
-
     & .delete-icon {
       opacity: 1;
       display: block;
@@ -108,21 +110,21 @@ export const List: React.FC<Props> = ({
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    const usub = onSnapshot(doc(db,'lists',id.toString()), doc => {
-      const list:any = doc.data();
+    const usub = onSnapshot(doc(db, "lists", id.toString()), (doc) => {
+      const list: any = doc.data();
       // @ts-ignore
       if (list) {
-        dispatch(updateSingleList(list))
+        dispatch(updateSingleList(list));
       }
-    })
+    });
     return () => {
-      usub()
+      usub();
     };
   }, []);
 
   useEffect(() => {
-    setFormTitle(list?.title)
-  }, [list?.title])
+    setFormTitle(list?.title);
+  }, [list?.title]);
 
   return (
     <ListWrapper
@@ -149,7 +151,7 @@ export const List: React.FC<Props> = ({
       >
         <EditInput
           onChange={(e) => {
-            setFormTitle(e.target.value)
+            setFormTitle(e.target.value);
             if (e.target.value) {
               dispatch(updateListEntityTitle({ title: e.target.value, id }));
             }
@@ -159,7 +161,7 @@ export const List: React.FC<Props> = ({
           value={formTitle}
         />
       </form>
-      <CardContainer listId={id}  />
+      <CardContainer listId={id} />
       <AddCardForm listId={id} />
       <IconButton
         onClick={() => dispatch(removeList(id))}
@@ -169,4 +171,4 @@ export const List: React.FC<Props> = ({
       </IconButton>
     </ListWrapper>
   );
-}
+};

@@ -13,7 +13,7 @@ import { ICard, IList } from "../../../commons";
 const listsAdapter = createEntityAdapter<
   Pick<IList, "id" | "title" | "order"> & { cards: string[] }
 >({
-  sortComparer: (a,b) => a.order - b.order
+  sortComparer: (a, b) => a.order - b.order,
 });
 
 const initialState: {
@@ -35,16 +35,16 @@ const listSlice = createSlice({
     },
     updateLists: (state, action: PayloadAction<any>) => {
       if (action.payload.lists) {
-        listsAdapter.upsertMany(state.data, action.payload.lists)
+        listsAdapter.upsertMany(state.data, action.payload.lists);
       }
     },
-    updateSingleList: (state,action: PayloadAction<IList>) => {
+    updateSingleList: (state, action: PayloadAction<IList>) => {
       listsAdapter.updateOne(state.data, {
         id: action.payload.id,
         changes: {
           ...action.payload,
-          cards: action.payload.cards.map(c => c.id)
-        }
+          cards: action.payload.cards.map((c) => c.id),
+        },
       });
     },
     listsLoaded: (state, action: PayloadAction<any>) => {
@@ -68,7 +68,7 @@ const listSlice = createSlice({
         id: id,
         changes: {
           title,
-        }
+        },
       });
     },
     addCard: (state, action: PayloadAction<{ id: string; card: ICard }>) => {
@@ -88,17 +88,16 @@ const listSlice = createSlice({
       });
     },
     removeList: (state, action: PayloadAction<EntityId>) => {
-      const index = state.data.ids.indexOf(action.payload)
-      const lists = state.data.ids.map(id => state.data.entities[id])
+      const index = state.data.ids.indexOf(action.payload);
+      const lists = state.data.ids.map((id) => state.data.entities[id]);
 
-      lists.slice(index + 1, lists.length).forEach(item => {
+      lists.slice(index + 1, lists.length).forEach((item) => {
         if (item?.order) {
-          item.order -= 1
+          item.order -= 1;
         }
-      })
+      });
 
       listsAdapter.removeOne(state.data, action.payload);
-
     },
     // @ts-ignore
     moveCard: (
@@ -175,7 +174,7 @@ export const {
   removeList,
   moveCard,
   moveList,
-    updateSingleList,
+  updateSingleList,
 } = listSlice.actions;
 
 export { listsAdapter };
