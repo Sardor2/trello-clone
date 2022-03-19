@@ -11,11 +11,16 @@ interface IList {
   order: number;
 }
 
+interface IUser {
+  id: string;
+  name: string;
+  email: string;
+  profilePhoto: string;
+}
+
 export enum DropDragItems {
   CARD = "CARD",
   LIST = "LIST",
 }
-
-interface IUser {}
 
 export type { ICard, IList, IUser };
