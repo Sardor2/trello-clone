@@ -5,6 +5,9 @@ import "../styles.css";
 import { ListContainer } from "../features";
 import { AddListForm } from "features/lists/components/AddListForm";
 import { useAppSelector } from "commons";
+import { selectIsLogged } from "features/lists/state/auth-slice";
+import Board from "screens/board";
+import LoginScreen from "screens/login";
 
 const BoxCanvas = styled(Box)`
   position: absolute;
@@ -19,14 +22,6 @@ const BoxCanvas = styled(Box)`
 `;
 
 export default function App() {
-  const isLoading = useAppSelector((state) => state.lists.isLoading);
-  return (
-    <BoxCanvas>
-      <Header />
-      <Box display={"flex"} marginTop={15}>
-        <ListContainer />
-        {!isLoading && <AddListForm />}
-      </Box>
-    </BoxCanvas>
-  );
+  const isLoggedIn = useAppSelector(selectIsLogged);
+  return isLoggedIn ? <Board /> : <LoginScreen />;
 }

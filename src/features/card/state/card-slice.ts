@@ -1,6 +1,8 @@
 import { MailRounded } from "@mui/icons-material";
 import {
+  createAction,
   createEntityAdapter,
+  createReducer,
   createSlice,
   PayloadAction,
 } from "@reduxjs/toolkit";
@@ -10,11 +12,12 @@ import {
   addCard,
   listsLoaded,
   loadLists,
+  moveCard,
   updateLists,
   updateSingleList,
 } from "features/lists/state/list-slice";
 
-const cardsAdapter = createEntityAdapter<ICard>();
+const cardsAdapter = createEntityAdapter<ICard>({});
 
 const cardSlice = createSlice({
   name: "card",
@@ -40,14 +43,14 @@ const cardSlice = createSlice({
     [addCard.type]: (state, action: PayloadAction<{ card: ICard }>) => {
       cardsAdapter.addOne(state, action.payload.card);
     },
-    [updateLists.type]: (state,action:PayloadAction<any>) => {
+    [updateLists.type]: (state, action: PayloadAction<any>) => {
       if (action.payload.cards) {
         cardsAdapter.setMany(state, action.payload.cards);
       }
     },
-    [updateSingleList.type]: (state,action: PayloadAction<IList>) => {
-      cardsAdapter.upsertMany(state, action.payload.cards)
-    }
+    [updateSingleList.type]: (state, action: PayloadAction<IList>) => {
+      cardsAdapter.upsertMany(state, action.payload.cards);
+    },
   },
 });
 
