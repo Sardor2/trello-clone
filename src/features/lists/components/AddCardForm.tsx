@@ -11,7 +11,6 @@ const Form = styled("form")`
   flex-direction: column;
   margin-top: 20px;
   gap: 5px;
-
   .add-button {
     width: 100px;
   }

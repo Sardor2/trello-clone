@@ -12,9 +12,7 @@ import { ICard, IList } from "../../../commons";
 
 const listsAdapter = createEntityAdapter<
   Pick<IList, "id" | "title" | "order"> & { cards: string[] }
->({
-  sortComparer: (a, b) => a.order - b.order,
-});
+>();
 
 const initialState: {
   data: ReturnType<typeof listsAdapter.getInitialState>;
